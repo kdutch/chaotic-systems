@@ -5,29 +5,80 @@ Created on Mon Oct 25 21:03:07 2021
 @author: Kade
 """
 import numpy as np
-import integrators
+from integrators import RK45Integrator
 from functions import lorenz, reciever
 from utilities import plot3d, plot2d, plot, plot_3, plot_2, readWave, writeWave
 import matplotlib.pyplot as plt
 
-#this is just a modified rk45 method
-def synchronize(f, t0, t1, y0, tol, hmax, hmin, maxstep, sig, r, b, X):
-    step = 0
-    t = np.zeros(maxstep)
-    y = np.zeros((maxstep, y0.size))
-    t[0] = t0
-    y[0] = y0
-    #guess first h
-    h = hmin
-    h_steps = np.zeros(maxstep)
-    h_steps[0] = h
-    while (t[step] < t1 and step+1 < maxstep):
-        step +=1
-        if ((t[step-1] + h) > t1):
-            h = t1 - t[step-1]
-        y[step], t[step], h = integrators.rk45step(f, t[step-1], y[step-1], h, hmax, hmin, tol, sig, r, b, X[step-1])
-        h_steps[step] = h
-    return y[0:step+1, 0], y[0:step+1, 1], y[0:step+1, 2], t[0:step+1], h_steps
+
+class SynchronizedRK45(RK45Integrator):
+    
+    def integrate(self, f: callable, t0: float, t1: float, y0: float, 
+                  hmax: float, hmin: float, *args ,**kwargs):
+        """
+        Integrates the function with the provided values.
+        
+        Parameters
+        ----------
+        f : callable
+            The function to integrate.
+        t0 : float
+            inital time. Where the integration begins.
+        t1 : float
+            boundary time. Where we are expected to stop the integration, 
+            if we have not exceeded the max step-size.
+        y0 : float
+            Initial value of the function we are integrating.
+        tol : float
+            The tolerance for error when integrating.
+        hmax : float
+            Maximum step-size.
+        hmin : float
+            Minimum step-size.
+        maxstep : int
+            The maximum number of steps to take.
+        X : np.array
+            An array of values containing the values we are synchronizing to.
+        *args : tuple
+            Arguments to submit to f
+        **kwargs : Dict
+            Key-word arguments to submit to f.
+
+        Returns
+        -------
+        (y, t, h) : Tuple(np.array[], np.array[], np.array[])
+            Returns a tuple of arrays containing y (the result of the 
+            integration), t, the axist against which we integrated (time), 
+            and h, the step-sizes for each step of the integration.
+            
+        """
+        step = 0
+        # constrain the amount of memory that's allowed to be used by defining
+        # a numpy array zeros of max size
+        t, y, h_steps = (np.zeros(self.max_steps),
+                         np.zeros((self.max_steps, y0.size)), 
+                         np.zeros(self.max_steps))
+        t[0], y[0] = t0, y0
+        #guess first h
+        h, h_steps[0] = hmax, hmax
+        h = hmax
+        h_steps[0] = h
+        # run through the integrator a maxmimum of maxstep times,
+        # and ensures we haven't hit our boundary condition
+        while (t[step] < t1 and step < self.max_steps - 1): 
+            # check to see if we're reached t1
+            if ((t[step] + h) > t1):
+                # if we have, make last step just large enough to get us to t1
+                h = t1 - t[step] 
+            # call the next solve next rk45step
+            y[step+1], t[step+1], h = self.step(f, t[step], y[step], h, hmax, 
+                                                hmin, self.tol, *args, **kwargs)
+            h_steps[step+1] = h
+            step +=1 
+        # truncate the array to the number of steps needed to get to t1 
+        # (or maxsteps, whichever is smaller)
+        return y[0:step+1], t[0:step+1], h_steps[0:step+1] 
+
 
 
 def main():
@@ -81,6 +132,7 @@ def main():
     b0 = 0
     b1 = int(pulse_width)
     i = 0
+    integrator = RK45Integrator(tol=tol, max_steps=maxstep)
     #create binary signal
     while (b1 != b0):
         binary_signal[b0:b1] = A*(-1)**i
@@ -90,10 +142,10 @@ def main():
         if (b1 > frame_num):
             b1 = frame_num
     t = np.linspace(t0, t1, frame_num)
-    res, t, h = integrators.rk45(lorenz, t0, t1, y0, tol, hmax, hmin, maxstep, sig, r, b)
+    res, t, h = integrator.integrate(lorenz, t0, t1, y0, tol, hmax, hmin, maxstep, sig, r, b)
     x = res[:,0]
     X_t = x + binary_signal
-    u, v, w, t, h = synchronize(reciever, t0, t1, y0, tol, hmax, hmin, maxstep, sig, r, b, X_t)
+    u, v, w, t, h = integrator.synchronize(reciever, t0, t1, y0, tol, hmax, hmin, maxstep, X_t, sig, r, b)
     binary_sent = X_t - u
     #plot_2(t, x, u, 'original vs. synchronized signal', 'original x', 'synchronized u', 't')
     title = 'original signal vs. extracted signal | A=' + str(A[0:4])

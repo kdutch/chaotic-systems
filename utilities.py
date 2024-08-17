@@ -2,6 +2,8 @@
 """
 Created on Thu Oct 13 9:58:3 2021
 
+Contains plotting utilities.
+
 @author: Kade
 """
 import numpy as np
@@ -9,14 +11,19 @@ import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 import wave
 
-#plots x, y, z in 3D. Also lists the R values. t is denoted by color, by the colormap
-#is cyclical so the color repets
+
 def plot3d(x, y, z, r):
-     #set up the figure
+    """
+    Plots x, y, z in 3D. Also lists the R values. t is denoted by color, by the colormap
+    is cyclical so the color repets
+    
+    
+    """
+    #set up the figure
     fig = plt.figure(figsize = (10,10), dpi=80)
     #print(plt.cm.get_cmap('inferno').N)
     ax = plt.axes(projection='3d')
-    #plots in 3D. For loop was necessary for adusting the color of the line
+    # plots in 3D. For loop was necessary for adusting the color of the line
     for i in range(len(x)-1):
         ax.plot(x[i:i+2], y[i:i+2], z[i:i+2], color=plt.cm.twilight((i+1)%510))
     #set values and labels
@@ -26,10 +33,32 @@ def plot3d(x, y, z, r):
     ax.set_ylabel('y', fontsize='x-large')
     ax.set_zlabel('z', fontsize='x-large')
     plt.show()
-    pass
 
-#plots two input parameters in 2D. t is denoted by color (see colorbar)
+
 def plot2d(t, x, y, r, xlabel, ylabel):
+    """
+    Plots two input parameters in 2D. t is denoted by color (see colorbar)
+    
+    Parameters
+    ----------
+    t : TYPE
+        DESCRIPTION.
+    x : TYPE
+        DESCRIPTION.
+    y : TYPE
+        DESCRIPTION.
+    r : TYPE
+        DESCRIPTION.
+    xlabel : TYPE
+        DESCRIPTION.
+    ylabel : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    None.
+
+    """
     #needed for multicolored-line plotting
     points = np.array([x, y]).T.reshape(-1, 1, 2)
     segments = np.concatenate([points[:-1], points[1:]], axis=1)
@@ -55,6 +84,27 @@ def plot2d(t, x, y, r, xlabel, ylabel):
     pass
 
 def plot(x, y, title, xlabel, ylabel):
+    """
+    Generates a simple 2D plot.
+
+    Parameters
+    ----------
+    x : TYPE
+        DESCRIPTION.
+    y : TYPE
+        DESCRIPTION.
+    title : TYPE
+        DESCRIPTION.
+    xlabel : TYPE
+        DESCRIPTION.
+    ylabel : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    None.
+
+    """
     fig, ax = plt.subplots(nrows=1, ncols=1)
     ax.set_facecolor('whitesmoke')
     ax.plot(x,y, color='midnightblue', linewidth=0.75)
@@ -66,6 +116,31 @@ def plot(x, y, title, xlabel, ylabel):
     pass
 
 def plot_2(t, x, y, title, xlabel, ylabel, tlabel):
+    """
+    
+
+    Parameters
+    ----------
+    t : TYPE
+        DESCRIPTION.
+    x : TYPE
+        DESCRIPTION.
+    y : TYPE
+        DESCRIPTION.
+    title : TYPE
+        DESCRIPTION.
+    xlabel : TYPE
+        DESCRIPTION.
+    ylabel : TYPE
+        DESCRIPTION.
+    tlabel : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    None.
+
+    """
     fig, ax = plt.subplots(nrows=1, ncols=1)
     color = 'whitesmoke'
     ax.set_facecolor(color)
@@ -93,6 +168,29 @@ def plot_3(t, x, y, z, title, xlabel, ylabel, zlabel, tlabel):
     pass
     
 def readWave(storage_string):
+    """
+
+    Parameters
+    ----------
+    storage_string : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    signal : TYPE
+        DESCRIPTION.
+    TYPE
+        DESCRIPTION.
+    sample_width : TYPE
+        DESCRIPTION.
+    sample_rate : TYPE
+        DESCRIPTION.
+    n : TYPE
+        DESCRIPTION.
+    num_channels : TYPE
+        DESCRIPTION.
+
+    """
     #read the wav file at location store_string
     wave_file = wave.open(storage_string, 'rb')
     sample_width = wave_file.getsampwidth()
