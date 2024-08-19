@@ -10,13 +10,22 @@ from functions import lorenz, reciever
 from utilities import plot3d, plot2d, plot, plot_3, plot_2, readWave, writeWave
 import matplotlib.pyplot as plt
 
+SIG = 10
+B = 8/3
+T = 28
+TOL= 10**(-6)
+Y0 = np.array([10, 10, 10])
+
 
 class SynchronizedRK45(RK45Integrator):
     
     def integrate(self, f: callable, t0: float, t1: float, y0: float, 
-                  hmax: float, hmin: float, *args ,**kwargs):
+                    hmax: float, hmin: float,  X: np.array, *args ,**kwargs):
         """
-        Integrates the function with the provided values.
+        Modified version of the integrate method that takes in an additional
+        parameter and submits it to the funtion. This parameter is an array
+        containing the result of a previous integration we are attempting to
+        synchronize to.
         
         Parameters
         ----------
@@ -50,70 +59,68 @@ class SynchronizedRK45(RK45Integrator):
             Returns a tuple of arrays containing y (the result of the 
             integration), t, the axist against which we integrated (time), 
             and h, the step-sizes for each step of the integration.
-            
+
         """
         step = 0
-        # constrain the amount of memory that's allowed to be used by defining
-        # a numpy array zeros of max size
-        t, y, h_steps = (np.zeros(self.max_steps),
+        # constrain the amount of memory that's allowed to be used by
+        # defining a numpy array of zeroes of max size
+        t, y, h_steps = (np.zeros(self.max_steps), 
                          np.zeros((self.max_steps, y0.size)), 
                          np.zeros(self.max_steps))
         t[0], y[0] = t0, y0
         #guess first h
         h, h_steps[0] = hmax, hmax
-        h = hmax
-        h_steps[0] = h
-        # run through the integrator a maxmimum of maxstep times,
-        # and ensures we haven't hit our boundary condition
-        while (t[step] < t1 and step < self.max_steps - 1): 
+        # run through the integrator a maxmimum of maxstep times
+        # check to make sure we haven't exceeded t1 or maxsteps
+        while (t[step] < t1 and step < self.max_steps - 1):
             # check to see if we're reached t1
             if ((t[step] + h) > t1):
                 # if we have, make last step just large enough to get us to t1
                 h = t1 - t[step] 
             # call the next solve next rk45step
-            y[step+1], t[step+1], h = self.step(f, t[step], y[step], h, hmax, 
-                                                hmin, self.tol, *args, **kwargs)
+            y[step+1], t[step+1], h = self.step(f, t[step], y[step],
+                                                h, hmax, hmin, self.tol, 
+                                                X[step], *args, **kwargs)
             h_steps[step+1] = h
             step +=1 
         # truncate the array to the number of steps needed to get to t1 
         # (or maxsteps, whichever is smaller)
         return y[0:step+1], t[0:step+1], h_steps[0:step+1] 
-
-
-
-def main():
-    sig = 10
-    b = 8/3
-    r = 28
-    tol= 10**(-6)
-    y0 = np.array([10, 10, 10])
     
+
+def check_for_synchronization_conditions(integrator: SynchronizedRK45):
+    """
+    Checks for the values for which r is synchronized.
     
-    #check for synchronization conditions
-    '''
+    """
     t0 = 0
     t1 = 5 #time*k
     h = 2.5*10**(-5)
     hmax = h
     hmin = h
     maxstep = 5000000
-    r_values = [28]# [0, 10, 28, 30, 50, 75, 99, 100, 150, 200, 250]
+    r_values = [28] # [0, 10, 28, 30, 50, 75, 99, 100, 150, 200, 250]
     #synchronize the system
     for r in r_values:
-        res, t, h = integrators.rk45(lorenz, t0, t1, y0, tol, hmax, hmin, maxstep, sig, r, b)
+        res, t, h = integrators.rk45(lorenz, t0, t1, y0, tol, hmax, hmin,
+                                     maxstep, sig, r, b)
         x = res[:,0]
         y = res[:,1]
         z = res[:,2]
-        u, v, w, t2, h = synchronize(reciever, t0, t1, np.array([0,0,0]), tol, hmax, hmin, maxstep, sig, r, b, x)
+        u, v, w, t2, h = synchronize(reciever, t0, t1, np.array([0,0,0]),
+                                     tol, hmax, hmin, maxstep, sig, r, b, x)
         title ='r=' + str(r) + ' | h=' + str(hmin)
-        plot_3(t, np.abs(x-u), np.abs(y-v), np.abs(z-w), title, '|x-u|', '|y-v|', '|z-w|', 't')
-        #plot_3(t[200000::], np.abs(x-u)[200000::], np.abs(y-v)[200000::], np.abs(z-w)[200000::], title, '|x-u|', '|y-v|', '|z-w|', 't')
-        #plot(t, np.abs(x-u), title, 't', '|x-u|')
-        #plot(t, np.abs(y-v), title, 't',  '|y-v|')
-        #plot(t, np.abs(z-w), title, 't', '|z-w|')
+        plot_3(t, np.abs(x-u), np.abs(y-v), np.abs(z-w), title, '|x-u|', 
+               '|y-v|', '|z-w|', 't')
+        plot_3(t[200000::], np.abs(x-u)[200000::], np.abs(y-v)[200000::],
+               np.abs(z-w)[200000::], title, '|x-u|', '|y-v|', '|z-w|', 't')
+        plot(t, np.abs(x-u), title, 't', '|x-u|')
+        plot(t, np.abs(y-v), title, 't',  '|y-v|')
+        plot(t, np.abs(z-w), title, 't', '|z-w|')
         
-    #'''
     
+    
+def transmit_binary_signal():
     #try to transmit a binary signal
     #'''
     #lets say 0 < t < 10 for this set
@@ -132,7 +139,7 @@ def main():
     b0 = 0
     b1 = int(pulse_width)
     i = 0
-    integrator = RK45Integrator(tol=tol, max_steps=maxstep)
+    integrator = Synchronized(tol=tol, max_steps=maxstep)
     #create binary signal
     while (b1 != b0):
         binary_signal[b0:b1] = A*(-1)**i
@@ -142,24 +149,48 @@ def main():
         if (b1 > frame_num):
             b1 = frame_num
     t = np.linspace(t0, t1, frame_num)
-    res, t, h = integrator.integrate(lorenz, t0, t1, y0, tol, hmax, hmin, maxstep, sig, r, b)
+    res, t, h = integrator.integrate(lorenz, t0, t1, y0, tol, hmax, hmin, 
+                                     maxstep, sig, r, b)
     x = res[:,0]
     X_t = x + binary_signal
-    u, v, w, t, h = integrator.synchronize(reciever, t0, t1, y0, tol, hmax, hmin, maxstep, X_t, sig, r, b)
+    u, v, w, t, h = integrator.synchronize(reciever, t0, t1, y0, tol, hmax, 
+                                           hmin, maxstep, X_t, sig, r, b)
     binary_sent = X_t - u
     #plot_2(t, x, u, 'original vs. synchronized signal', 'original x', 'synchronized u', 't')
     title = 'original signal vs. extracted signal | A=' + str(A[0:4])
-    plot_2(t, binary_signal, binary_sent, title, 'original signal', 'extracted signal', 't')
+    plot_2(t, binary_signal, binary_sent, title, 'original signal', 
+           'extracted signal', 't')
+    
+    
+def decompose_wave(path):
+    #get signalinfo and convert to an integer
+    signal_raw, n, sample_width, sample_rate, num_frames, num_channels = \
+        readWave('wav/song_of_storms.wav')
+    sample_time = 1/sample_rate
+    time = sample_time*num_frames
+
+
+def set_synchronization_values():
+    pass
+
+def set_
+
+    
+
+def main():
+    
+    
+    
+    
+    
+   
     #'''
     
     
     
     
     '''
-    #get signal info and convert to an integer
-    signal_raw, n, sample_width, sample_rate, num_frames, num_channels = readWave('wav/song_of_storms.wav')
-    sample_time = 1/sample_rate
-    time = sample_time*num_frames
+   
         
     #define the values
     r=28

@@ -10,7 +10,7 @@ RK45 integrator wth adaptive step-sizing.
 import logging
 import numpy as np
 
-from typing import Optional
+from typing import Optional, Tuple, Union
 
 
 class RK45Integrator:
@@ -42,7 +42,7 @@ class RK45Integrator:
         self._max_steps = max_steps
         
     @property
-    def tol(self):
+    def tol(self) -> float:
         """
 
         Returns
@@ -69,7 +69,7 @@ class RK45Integrator:
         self._tol = new_tolerance
     
     @property
-    def max_steps(self):
+    def max_steps(self) -> int:
         """
         Returns the value of the max_steps
         
@@ -99,14 +99,11 @@ class RK45Integrator:
             # defaul max value is 10,000
             max_steps = 10000
         self._max_step = max_steps
-    
-    def synchronize(self, f: callable, t0: float, t1: float, y0: float, 
-                    hmax: float, hmin: float,  X: np.array, *args ,**kwargs):
+        
+    def integrate(self, f: callable, t0: float, t1: float, y0: float, 
+                  hmax: float, hmin: float, *args ,**kwargs) -> Tuple[np.array, np.array, np.array]:
         """
-        Modified version of the integrate method that takes in an additional
-        parameter and submits it to the funtion. This parameter is an array
-        containing the result of a previous integration we are attempting to
-        synchronize to.
+        Integrates the function with the provided values.
         
         Parameters
         ----------
@@ -140,28 +137,29 @@ class RK45Integrator:
             Returns a tuple of arrays containing y (the result of the 
             integration), t, the axist against which we integrated (time), 
             and h, the step-sizes for each step of the integration.
-
+            
         """
         step = 0
-        # constrain the amount of memory that's allowed to be used by
-        # defining a numpy array of zeroes of max size
-        t, y, h_steps = (np.zeros(self.max_steps), 
+        # constrain the amount of memory that's allowed to be used by defining
+        # a numpy array zeros of max size
+        t, y, h_steps = (np.zeros(self.max_steps),
                          np.zeros((self.max_steps, y0.size)), 
                          np.zeros(self.max_steps))
         t[0], y[0] = t0, y0
         #guess first h
         h, h_steps[0] = hmax, hmax
-        # run through the integrator a maxmimum of maxstep times
-        # check to make sure we haven't exceeded t1 or maxsteps
-        while (t[step] < t1 and step < self.max_steps - 1):
+        h = hmax
+        h_steps[0] = h
+        # run through the integrator a maxmimum of maxstep times,
+        # and ensures we haven't hit our boundary condition
+        while (t[step] < t1 and step < self.max_steps - 1): 
             # check to see if we're reached t1
             if ((t[step] + h) > t1):
                 # if we have, make last step just large enough to get us to t1
                 h = t1 - t[step] 
             # call the next solve next rk45step
-            y[step+1], t[step+1], h = self.step(f, t[step], y[step],
-                                                h, hmax, hmin, self.tol, 
-                                                X[step], *args, **kwargs)
+            y[step+1], t[step+1], h = self.step(f, t[step], y[step], h, hmax, 
+                                                hmin, self.tol, *args, **kwargs)
             h_steps[step+1] = h
             step +=1 
         # truncate the array to the number of steps needed to get to t1 
@@ -170,7 +168,7 @@ class RK45Integrator:
             
     @staticmethod
     def step(f: callable, t0: float, y0: float, h: float, hmax: float,
-             hmin: float, tol: float, *args, **kwargs):
+             hmin: float, tol: float, *args, **kwargs) -> Tuple[Union[float, np.array], float, float]:
         """
         A single RK45 integrator step. Pioritizes efficiency over 
         resolution/accuracy. If our resolution < pre-defined tolerance, 
@@ -210,7 +208,7 @@ class RK45Integrator:
 
         """
         rk45 = RK45Integrator
-        k1 = h*f(t0, y0, *args)
+        k1 = h*f(t0, y0, *args, **kwargs)
         k2 = h*f(t0 + rk45.H_COEFF[0]*h,   y0 + rk45.K2_COEFF[0]*k1, 
                                                 *args, **kwargs)
         k3 = h*f(t0 + rk45.H_COEFF[1]*h,   y0 + rk45.K3_COEFF[0]*k1 + 
@@ -273,5 +271,3 @@ class RK45Integrator:
                     t = t0 + h
             # after this is done, return the new values   
         return y, t, h_new
-
-    
