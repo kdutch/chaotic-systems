@@ -30,7 +30,7 @@ def parse_input_arguments() -> argparse.ArgumentParser:
                         required=False, type=float)
     parser.add_argument("--b", default=8/3, action='store',
                         required=False, type=float)
-    parser.add_argument("--r_values", default=[1, 10, 28], nargs='*', 
+    parser.add_argument("--r-values", default=[1, 10, 28], nargs='*', 
                         action='store', required=False, type=float)
     parser.add_argument("--tol", default=10**(-6), action='store',
                         required=False, type=float)
@@ -44,8 +44,8 @@ def parse_input_arguments() -> argparse.ArgumentParser:
                         required=False, type=float)
     parser.add_argument("--hmin", default=0.5*10**(-9), action='store', 
                         required=False)
-    parser.add_argument("--max_steps", default=1000000, action='store', 
-                        required=False, type=float)
+    parser.add_argument("--max-steps", default=1000000, action='store', 
+                        required=False, type=int)
     return parser.parse_args()
 
 def sanitize_intput_arguments(parsed_args: argparse.Namespace) -> \

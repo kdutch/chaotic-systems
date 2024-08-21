@@ -42,7 +42,7 @@ def lorenz(t, y0, sig, r, b):
     return dydxdz
 
 
-def reciever(X, t, y0, sig, r, b):
+def reciever(t, y0, X, sig, r, b):
     """
     A modified lorenz system designed to synchronize with an incoming 
     "signal" (a previously integrated lorenz system).
