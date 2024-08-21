@@ -41,7 +41,7 @@ def read_wave(wave_file_path: Union[Path, str]) -> \
 
     """
     # read the wav file at location store_string
-    with wave.open(wave_file_path, 'rb') as wave_file:
+    with wave.open(str(wave_file_path), 'rb') as wave_file:
         sample_width = wave_file.getsampwidth()
         sample_rate = wave_file.getframerate()
         # get the number of audio frames
@@ -55,7 +55,7 @@ def read_wave(wave_file_path: Union[Path, str]) -> \
     return signal, signal.size, sample_width, sample_rate, n, num_channels
 
 
-def write_wave(wave_file_path: Union[Path, str], signal_bytes: np.array[bytes],
+def write_wave(wave_file_path: Union[Path, str], signal_bytes: np.array,
                sample_width: int, sample_rate: float, numframes: int):
     """
     Writes the wave to a WAV to the provided wave_file_path.

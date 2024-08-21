@@ -271,3 +271,76 @@ class RK45Integrator:
                     t = t0 + h
             # after this is done, return the new values   
         return y, t, h_new
+
+
+
+class SynchronizedRK45(RK45Integrator):
+    
+    def synchronize(self, f: callable, t0: float, t1: float, y0: float, 
+                    hmax: float, hmin: float,  X: np.array, *args ,**kwargs):
+        """
+        Modified version of the integrate method that takes in an additional
+        parameter and submits it to the funtion. This parameter is an array
+        containing the result of a previous integration we are attempting to
+        synchronize to.
+        
+        Parameters
+        ----------
+        f : callable
+            The function to integrate.
+        t0 : float
+            inital time. Where the integration begins.
+        t1 : float
+            boundary time. Where we are expected to stop the integration, 
+            if we have not exceeded the max step-size.
+        y0 : float
+            Initial value of the function we are integrating.
+        tol : float
+            The tolerance for error when integrating.
+        hmax : float
+            Maximum step-size.
+        hmin : float
+            Minimum step-size.
+        maxstep : int
+            The maximum number of steps to take.
+        X : np.array
+            An array of values containing the values we are synchronizing to.
+        *args : tuple
+            Arguments to submit to f
+        **kwargs : Dict
+            Key-word arguments to submit to f.
+
+        Returns
+        -------
+        (y, t, h) : Tuple(np.array[], np.array[], np.array[])
+            Returns a tuple of arrays containing y (the result of the 
+            integration), t, the axist against which we integrated (time), 
+            and h, the step-sizes for each step of the integration.
+
+        """
+        step = 0
+        # constrain the amount of memory that's allowed to be used by
+        # defining a numpy array of zeroes of max size
+        t, y, h_steps = (np.zeros(self.max_steps), 
+                         np.zeros((self.max_steps, y0.size)), 
+                         np.zeros(self.max_steps))
+        t[0], y[0] = t0, y0
+        #guess first h
+        h, h_steps[0] = hmax, hmax
+        # run through the integrator a maxmimum of maxstep times
+        # check to make sure we haven't exceeded t1 or maxsteps
+        while (t[step] < t1 and step < self.max_steps - 1 and step < len(X)):
+            # check to see if we're reached t1
+            if ((t[step] + h) > t1):
+                # if we have, make last step just large enough to get us to t1
+                h = t1 - t[step] 
+            # call the next solve next rk45step
+            y[step+1], t[step+1], h = self.step(f, t[step], y[step],
+                                                h, hmax, hmin, self.tol, 
+                                                X[step], *args, **kwargs)
+            h_steps[step+1] = h
+            step +=1 
+        # truncate the array to the number of steps needed to get to t1 
+        # (or maxsteps, whichever is smaller)
+        return y[0:step+1], t[0:step+1], h_steps[0:step+1] 
+    
