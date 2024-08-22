@@ -146,7 +146,7 @@ def parse_input_arguments() -> SystemConditions:
     parser.add_argument("--y0", action='store', nargs=3, required=False,
                         type=float)
     parser.add_argument("--percent-wave-amp", action='store', required=False, type=float,
-                       default=0.1)
+                       default=0.01)
     parser.add_argument("--hmin", action='store', required=False)
     parser.add_argument("--offset", action='store', required=False)
     parsed_arguments = parser.parse_args()
@@ -216,7 +216,7 @@ def check_for_synchronization_conditions(integrator: SynchronizedRK45,
         plot(t, np.abs(z-w), title, 't', '|z-w|')
         
     
-def print_original_wave(norm: float, wave_properties: WaveProperties,
+def print_wave(norm: float, wave_properties: WaveProperties,
                         title: str):
     """
     
@@ -233,7 +233,7 @@ def print_original_wave(norm: float, wave_properties: WaveProperties,
     i = np.linspace(0, wave_properties.signal_size,
                     wave_properties.num_frames * wave_properties.num_channels)
     title = 'original signal'
-    plot(i, wave_properties.signal_raw, title, 'frame', 'byte (int)')
+    plot(i, signal, title, 'frame', 'byte (int)')
 
 
 
@@ -241,10 +241,10 @@ def main():
     system_parameters = parse_input_arguments()
     integrator = SynchronizedRK45(tol=system_parameters.tol, 
                                   max_steps=system_parameters.max_steps)
-    print_original_wave(norm=system_parameters.norm, 
-                        wave_properties=system_parameters.wave_properties,
-                        title="Original WAV")
-   
+    print_wave(norm=system_parameters.norm, 
+               wave_properties=system_parameters.wave_properties,
+               title="Original WAV")
+    print(system_parameters)
     for r in system_parameters.r_values:
    
     #integrate first system
@@ -272,7 +272,7 @@ def main():
             str(system_parameters.percent) + '%'
         plot(t, X_t, title, 't', 'X(t)')
     #synchronize the system
-    u, v, w, t, h = integrator.synchronize(f=reciever, 
+    y, t, h = integrator.synchronize(f=reciever, 
                                            t0=system_parameters.t0, 
                                            t1=system_parameters.t1, 
                                            y0=system_parameters.y0, 
@@ -282,7 +282,7 @@ def main():
                                            sig=system_parameters.sig, 
                                            r=r, 
                                            b=system_parameters.b)
-    
+    u, v, w, = y[:, 0], y[:, 1], y[:,2]
     #decode the signal
     signal_recieved = X_t - u
     signal_recieved = signal_recieved[index]
@@ -294,8 +294,15 @@ def main():
     plot(i, signal_sent, title, 'frame', 'byte (int)')
     signal_decoded = signal_sent.astype('int16').tobytes()
     num_frames = signal_sent.size
-    #file_string = 'sent/song_of_storms_01_r=' + str(r)[0:4] + '_h=' + str(hmax) + '_norm=' + str(norm) + '.wav'
-    #writeWave(file_string, signal_decoded, sample_width, sample_rate, num_frames)
+    
+    file_string = f"wav_files/sent_wavs/"\
+                  f"{str(system_parameters.wave_file_path.stem)}"\
+                  f"_r={str(r)[0:4]}_h={str(system_parameters.h_max)}"\
+                  f"_norm={str(system_parameters.norm)}.wav"
+    write_wave(file_string, signal_decoded, 
+               system_parameters.wave_properties.sample_width, 
+               system_parameters.wave_properties.sample_rate, 
+               system_parameters.wave_properties.num_frames)
     #'''
     pass
 
