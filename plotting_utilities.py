@@ -120,6 +120,41 @@ def plot2d_two_params(t: np.array, x: np.array, y: np.array, title: str,
     plt.show()
     
     
+def plot2d_two_param_sets(t1: np.array, t2: np.array, x: np.array, y: np.array, 
+                          title: str, xlabel: str, ylabel: str, tlabel: str):
+    """
+    Plots two parameters (x and y) against t in 2D space.
+
+    Parameters
+    ----------
+    t : np.array
+        An array of t values against which to plot.
+    x : np.array
+        An array of x values.
+    y : np.array
+        An array of y values.
+    title : str
+        The title of the graph.
+    xlabel : str
+        The label of the x values.
+    ylabel : str
+        The label of the y values.
+    tlabel : str
+        The lable of the t values.
+
+    """
+    fig, ax = plt.subplots(nrows=1, ncols=1)
+    color = 'whitesmoke'
+    ax.set_facecolor(color)
+    ax.grid(True)
+    ax.plot(t1, x, label=xlabel, color='indigo', linewidth=1)
+    ax.plot(t2, y, label=ylabel, color='gold', linewidth=1)
+    ax.set_xlabel(tlabel)
+    ax.set_title(title)
+    ax.legend(labelcolor='k', facecolor=color)
+    plt.show()
+    
+    
 def plot2d_three_params(t: np.array, x: np.array, y: np.array, z: np.array, 
                         title: str, xlabel: str, ylabel: str, zlabel: str, 
                         tlabel: str):
