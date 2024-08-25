@@ -2,6 +2,15 @@
 """
 Created on Mon Oct 25 21:03:07 2021
 
+Contaings all of the methods and functions associated with synchronizing two 
+systems with (a) starting output and (b) a perterbed distribution.
+
+The perterbation can be anything, including a wave-like signal you would like 
+to "transmit". Chaotic system synchronization therefore has potential in 
+cryptography for signal masking.
+
+The below code is an exploration of that.
+
 @author: Kade
 """
 import argparse
