@@ -67,6 +67,18 @@ As you can see, the two systems synchronize and produce the same result. This ca
 
 <img src="system_plots/synchronization/Figure 2025-06-26 133857.png" alt="A 2D plot mapping the difference between x and u."><img src="system_plots/synchronization/Figure 2025-06-26 133903.png" alt="A 2D plot mapping the difference between y and v."><img src="system_plots/synchronization/Figure 2025-06-26 133906.png" alt="A 2D plot mapping the difference between z and w.">
 
+We can take advatage of this if we wanted to send an encrypted wave, for example, a sound file.
+
+To do this, there are a few steps. 
+- Person A integrates the system as normal. Person B knows the system, but not its initial consditions. They agree on the variable they are syncrhonizing on. In this case, they are syncrhonizing the result of *x*.
+  - Normally, and RK45 integrator has variable step-sizing. In order to maintain the fidelity of the sound file, they have both also agreed to use fixed, agreed-upon step-sizes.
+- Person A takes the wave they want to transmit, and minimizes it, multplying it by a factor of 0.001 or 0.0001. This means the amplitude of the wave is now about 1% or 0.1% the peaks of the chaotic distribution. 
+- Person A then perterbs the choatic distribution, or, adds the minimized sound wave to the chaotic function of the variable of their choice (in this case, the result of the integration for the variable *x*).
+- The result is then transmitted to Person B.
+- Person B synchronizes their system to the transmitted wave.
+- Person B then subtracts their result from the transmitted signal.
+- The result is then divided by the normalization factor to get the original wave.
+
 
 
 
