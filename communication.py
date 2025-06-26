@@ -375,13 +375,15 @@ def perterb_and_plot_distribution(x: np.array, t: np.array,
     """
     #perturb x(t)
     X_t = np.zeros(t.size)
-    
     # calculates the indices to match the values for whcih t > 0
-    index = np.where( t >= 0)
-    if len(index[0]) > len(signal_raw):
-        index[0] = index[0][:len(signal_raw)]
-    elif len(signal_raw) > len(index[0]):
-        signal_raw = signal_raw[:len(index[0])]
+    signal_raw_length = len(signal_raw)
+    index = np.where(t >= 0)[0]
+    index_length = len(index)
+    # truncates index / singal to match length
+    if index_length > signal_raw_length:
+        index = index[:signal_raw_length]
+    elif index_length < signal_raw_length:
+        signal_raw = signal_raw[:index_length]
     
     X_t[index] = system_parameters.norm * signal_raw
     X_t = X_t + x
