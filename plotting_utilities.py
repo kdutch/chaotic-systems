@@ -228,3 +228,48 @@ def plot3d(x: np.array, y: np.array, z: np.array, r: int):
     ax.set_ylabel('y', fontsize='x-large')
     ax.set_zlabel('z', fontsize='x-large')
     plt.show()
+
+
+def print_result_difference(y0: np.array, t0: np.array, y1: np.array, 
+                            t1: np.array, tol: float, r: float):
+    """        
+    Takes in 2 3-dimensional functions and plots the difference in their
+    respective coordinates. 
+    
+    Parameters
+    ----------
+    y0 : np.array
+        A series of 3D coordinates.
+    t0 : np.array
+        The time values accross which y0 was calculated.
+    y1 : np.array
+        A series of 3D coordinates.
+    t1 : np.array
+        The time values accross which y0 was calculated.
+
+    """
+    x, y, z = y0[:,0], y0[:,1], y0[:,2]
+    u, v, w = y1[:,0], y1[:,1], y1[:,2]
+    
+    title =f"r={str(r)} | tol= {str(tol)}"
+    plot2d_two_param_sets(t0, t1, x, u, "x vs. u", "x", "u", "time")
+    plot2d_two_param_sets(t0, t1, y, v, "y vs. v", "y", "v", "time")
+    plot2d_two_param_sets(t0, t1, z, w, "z vs. w", "z", "w", "time")
+    
+    def make_same_length(a: np.array, b: np.array):
+        # Truncates two arrays to be the same length
+        if len(a) > len(b):
+            a = a[:len(b)]
+        elif len(a) < len(b):
+            b = b[:len(a)]
+        return a, b
+        
+    x, u = make_same_length(x, u)
+    y, v = make_same_length(y, v)
+    z, w = make_same_length(z, w)
+    t0, t1 = make_same_length(t0, t1)
+    plot2d_three_params(t0, np.abs(x-u), np.abs(y-v), np.abs(z-w), title,
+                       '|x-u|', '|y-v|', '|z-w|', 't')
+    plot(t0, np.abs(x-u), title, 't', '|x-u|')
+    plot(t0, np.abs(y-v), title, 't',  '|y-v|')
+    plot(t0, np.abs(z-w), title, 't', '|z-w|')
