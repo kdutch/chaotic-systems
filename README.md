@@ -33,6 +33,16 @@ The Lorenz System, when mapped in 3D with the chaoatic solution of σ=10, b=8/3 
 
 <img src="system_plots/r_values/r=28/Figure 2024-08-18 193846.png" alt="A 3D plot with a line that travels in two interlocking circular patterns, but does not touch any other line.">
 
+You can see how the system below as chaotic, as the set of graphs on the left has initial values (20, 20, 20) and the set of graphs on the right has initial values of (20, 19.9, 20) and yet the resulting values are different.
+
+<img src="" alt="3D Lorenz System for (20,20,20)"><img src="" alt="3D Lorenz System for (20, 19.9, 20)">
+
+
+<img src="" alt=""><img src="" alt="">
+<img src="" alt=""><img src="" alt="">
+<img src="" alt=""><img src="" alt="">
+<img src="" alt=""><img src="" alt="">
+
 
 With different r-values, of course, the system isn't chaotic, as demonstrated by this graph with conditions σ=10, b=8/3 and r=10. The system gradually approaches its singualr solution.
 
@@ -42,7 +52,7 @@ It is far easier to see in this 2D graph, where the *(x, y, z)* coordinates are 
 
 <img src="system_plots/r_values/r=10/Figure 2024-08-18 193459.png" alt="A 2D plot three lines that begin by alternating wildly but then converge to single values."><img src="system_plots/r_values/r=28/Figure 2024-08-18 193905.png" alt="A 2D plot three lines that alternate wildly.">
 
-Interesting, there are also values that are semi-choatic. That is, at small values of *t*, the system is chaotic, before later converging at larger values of *t*.
+Interestingly, there are also values that are semi-choatic. That is, at small values of *t*, the system is chaotic, before later converging at larger values of *t*.
 
 <img src="system_plots/r_values/r=20/Figure 2024-08-18 193625.png" alt="A 2D plot three lines that begin by alternating wildly but then converge to single values.">
 
@@ -135,10 +145,10 @@ The arguments for exploration.py are as follows:
 | `--r-values` | `list[float]` | A list of r-values to test integrate and plot grapha for (with the same sigma and b values). | [1, 10, 28] | `--r-values 1 10 28` |
 | `--t0` | `float` | The initial value of t where we begin integration. | 0 | `--t0 01`|
 | `--t1` | `float` | The value of t where we halt integration. If we reach max_steps first, we halt integration prematurely.| 100 | `--t1 100`|
-| `--tol` | `float` | The tolerance for the variable-step integrator. | 10<sup>-6</sup> | `--tol 10**(-6)` |
+| `--tol` | `float` | The tolerance for the variable-step integrator. | 10<sup>-6</sup> | `--tol 0.00001` |
 | `--y0` | `list[float]` | the initial values of the system. | [10, 10, 10]| | `--y0 10 10 10` |
-| `--hmax` | `float` | the maximum step-size the integrator is permitted to use. | 0.1 | `--hmax 0.1` |
-| `--hmin` | `float` | the minimum step-size the integrator is permitted to use. | 0.5*10<sup>-9</sup> | `--him 0.5*10**(-9)`|
+| `--hmax` | `float` | the maximum step-size the integrator is permitted to use. | 0.1 | `--hmax 0.000001` |
+| `--hmin` | `float` | the minimum step-size the integrator is permitted to use. | 0.5*10<sup>-9</sup> | `--him 0.00000001`|
 | `--max-steps`| `int` | the maximum number of steps the integrator is permitted to take. | 1000000 | `--max-steps 1000000` |
 
 Example run command
