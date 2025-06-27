@@ -33,16 +33,25 @@ The Lorenz System, when mapped in 3D with the chaoatic solution of σ=10, b=8/3 
 
 <img src="system_plots/r_values/r=28/Figure 2024-08-18 193846.png" alt="A 3D plot with a line that travels in two interlocking circular patterns, but does not touch any other line.">
 
+If we plot the cooradinate against eachother in 2D, you can more obviously see how the system evoles over time.
+<img src="" alt="system_plots/r_values/r=28/Figure 2024-08-18 193857.png"><img src="system_plots/r_values/r=28/Figure 2024-08-18 193859.png" alt="">
+<img src="system_plots/r_values/r=28/Figure 2024-08-18 193902.png" alt=""><img src="system_plots/r_values/r=28/Figure 2024-08-18 193905.png" alt="">
+
 You can see how the system below as chaotic, as the set of graphs on the left has initial values (20, 20, 20) and the set of graphs on the right has initial values of (20, 19.9, 20) and yet the resulting values are different.
+The first images are the 3D and 2D models of the given coordinates.
 
-<img src="" alt="3D Lorenz System for (20,20,20)"><img src="" alt="3D Lorenz System for (20, 19.9, 20)">
+<img src="system_plots/chaotic_comparisons/Figure 2025-06-27 122546.png" alt=""><img src="system_plots/chaotic_comparisons/Figure 2025-06-27 122611.png" alt="">
+<img src="system_plots/chaotic_comparisons/Figure 2025-06-27 122548.png" alt=""><img src="system_plots/chaotic_comparisons/Figure 2025-06-27 122613.png" alt="">
+<img src="system_plots/chaotic_comparisons/Figure 2025-06-27 122551.png" alt=""><img src="system_plots/chaotic_comparisons/Figure 2025-06-27 122616.png" alt="">
 
+Now, these do not appear vastly different. However, when you plot the *difference* of the values, you can see how truly different the values are.
 
-<img src="" alt=""><img src="" alt="">
-<img src="" alt=""><img src="" alt="">
-<img src="" alt=""><img src="" alt="">
-<img src="" alt=""><img src="" alt="">
+<img src="system_plots/chaotic_comparisons/Figure 2025-06-27 122648.png" alt=""><img src="system_plots/chaotic_comparisons/Figure 2025-06-27 122651.png" alt="">
+<img src="system_plots/chaotic_comparisons/Figure 2025-06-27 122654.png" alt="">
 
+Mapped together, the difference in values between the systems looks like so:
+
+<img src="system_plots/chaotic_comparisons/Figure 2025-06-27 122623.png" alt="">
 
 With different r-values, of course, the system isn't chaotic, as demonstrated by this graph with conditions σ=10, b=8/3 and r=10. The system gradually approaches its singualr solution.
 
