@@ -9,7 +9,7 @@
   -  [Communication](#communication)
 -  [How To Run this Project](#how-to-run-this-project)
   - [Exploration](#exploration)
-  - [Communication](#communication)
+  - [Communication](#communication-1)
 
 ## Background
 Chaotic Systems are incredibly interesting systems, given that they have two defining features - they are *chaotic* and they are *deterministic*.
