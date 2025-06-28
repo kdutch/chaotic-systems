@@ -72,7 +72,7 @@ def sanitize_intput_arguments(parsed_args: argparse.Namespace) -> \
         "t0": parsed_args.t0, 
         "t1": parsed_args.t1, 
         "y0": np.array([float(arg) for arg in parsed_args.y0]),
-        "y1": np.array([float(arg) for arg in parsed_args.y1]),
+        "y1": np.array([float(arg) for arg in parsed_args.y1]) if parsed_args.y1 else None,
         "hmax": float(parsed_args.hmax), 
         "hmin": float(parsed_args.hmin), 
         "sig": parsed_args.sig, 
@@ -80,7 +80,7 @@ def sanitize_intput_arguments(parsed_args: argparse.Namespace) -> \
         "b": parsed_args.b,
         "tol": parsed_args.tol,
         "max_steps": parsed_args.max_steps
-        }
+    }
     
 def print_results(y: np.array, t: np.array, h: np.array, r: int):
     """
