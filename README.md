@@ -173,7 +173,7 @@ The arguments for [communication](communication.py) are as follows.
 | `--y0` | `list[float]` | the initial values of the system. | [10, 10, 10]| | `--y0 10 10 10` |
 | `--percent-wave-amp` | `float` |The percentage to shrink the wav signal to, ie. the result will have an amplitude this percentage amount of the original. | 0.01 | `--wave-percent-amp 0.01` |
 | `--offset` | `float` | How far before 0 to start the integration before adding the .wav file signal. | 0 | `--offset 2.5`|
-| `--check-for-synchronization-conditions`| `bool` | A flag that integrates and synchronizes two system then plots the result. The r-values are what the user defines, as well as the initial y0 the chose. The system thats synchronizing has randomly-generated initial values. | False | `--check-for-synchronization-conditions` |
+| `--check-for-synchronization-conditions`| `bool` | A flag that integrates and synchronizes two systems then plots the result. The r-values and y0 are what the user defines, or their defaults. The system thats synchronizing has randomly-generated initial values. | False | `--check-for-synchronization-conditions` |
 | `--transmit-signal` | `bool` | A flag that transmits the signal of the users choice and and plots the results. r-value and y0 values are what the user chose or their default values. Output is saved to `wav_files/sent_wavs`.| False | `--transmit-signal` |
 
 Example run command:
