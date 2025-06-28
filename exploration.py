@@ -12,7 +12,7 @@ from typing import Dict, Union
 
 from functions import lorenz
 from integrators import RK45Integrator
-from plotting_utilities import plot2d, plot2d_three_params, plot3d
+from plotting_utilities import plot2d, plot2d_three_params, plot3d, print_result_difference
 
 
 def parse_input_arguments() -> argparse.ArgumentParser:
@@ -40,6 +40,8 @@ def parse_input_arguments() -> argparse.ArgumentParser:
                         required=False, type=float)
     parser.add_argument("--y0", default=[10, 10, 10], action='store', 
                         nargs='*', required=False, type=float)
+    parser.add_argument("--y1", action="store",
+                        nargs="*", required=False, type=float)
     parser.add_argument("--hmax", default=0.1, action='store', 
                         required=False, type=float)
     parser.add_argument("--hmin", default=0.5*10**(-9), action='store', 
@@ -70,15 +72,15 @@ def sanitize_intput_arguments(parsed_args: argparse.Namespace) -> \
         "t0": parsed_args.t0, 
         "t1": parsed_args.t1, 
         "y0": np.array([float(arg) for arg in parsed_args.y0]),
-        "hmax": parsed_args.hmax, 
-        "hmin": parsed_args.hmin, 
+        "y1": np.array([float(arg) for arg in parsed_args.y1]),
+        "hmax": float(parsed_args.hmax), 
+        "hmin": float(parsed_args.hmin), 
         "sig": parsed_args.sig, 
         "r_values": [float(arg) for arg in parsed_args.r_values],
         "b": parsed_args.b,
         "tol": parsed_args.tol,
         "max_steps": parsed_args.max_steps
         }
-    
     
 def print_results(y: np.array, t: np.array, h: np.array, r: int):
     """
@@ -110,17 +112,24 @@ def print_results(y: np.array, t: np.array, h: np.array, r: int):
     print('x=' + str(y[n-1, 0])[0:4] + '   y=' + str(y[n-1, 1])[0:4] + 
           '   z=' + str(y[n-1, 2])[0:4])
     print('h_min=' + str(h[1:h.size-1].min()))
-
     
 def main():
     parsed_args = parse_input_arguments()
     kwargs = sanitize_intput_arguments(parsed_args)
-    integrator = RK45Integrator(tol=kwargs.pop("tol"), 
+    tol=kwargs.pop("tol")
+    integrator = RK45Integrator(tol=tol, 
                                 max_steps=kwargs.pop("max_steps"))
+    y0 = kwargs.pop("y0")
+    y1 = kwargs.pop("y1", None)
     # run the integrator for each value of r
     for r in kwargs.pop('r_values'):
-        y, t, h = integrator.integrate(lorenz, **kwargs, r=r)
+        y, t, h = integrator.integrate(lorenz, **kwargs, r=r, y0=y0)
         print_results(y, t, h, r)
         
-        
-main()
+        if y1 is not None:
+            y1, t1, h1 = integrator.integrate(lorenz, **kwargs, r=r, y0=y1)
+            print_results(y1, t1, h1, r)
+            print_result_difference(y, t, y1, t1, tol, r)
+            
+if __name__ == '__main__':
+    main()
