@@ -29,7 +29,7 @@ The System looks as follows:
 - dz / dt = xy − b
 
 
-The Lorenz System, when mapped in 3D with the chaoatic solution of σ=10, b=8/3 and r=28, is displayed below.
+The Lorenz System, when mapped in 3D with the chaotic solution of σ=10, b=8/3 and r=28, is displayed below.
 
 <img src="system_plots/r_values/r=28/Figure 2024-08-18 193846.png" alt="A 3D plot with a line that travels in two interlocking circular patterns, but does not touch any other line.">
 
