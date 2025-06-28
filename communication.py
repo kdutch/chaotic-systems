@@ -23,7 +23,7 @@ from pathlib import Path
 
 from integrators import SynchronizedRK45
 from functions import lorenz, reciever
-from plotting_utilities import plot, plot2d_three_params, plot2d_two_param_sets
+from plotting_utilities import plot, print_result_difference
 from wave_utilities import read_wave, write_wave
 
 
@@ -267,28 +267,17 @@ def check_for_synchronization_conditions(system_parameters: SystemConditions):
                                          system_parameters.sig,
                                          r, 
                                          system_parameters.b)
-        x, y, z = res[:,0], res[:,1], res[:,2]
         synced, t2, h = integrator.synchronize(reciever, 
                                      system_parameters.t0, 
                                      system_parameters.t1, 
                                      100*np.random.rand(3),
                                      system_parameters.h*10**2, 
                                      system_parameters.h,
-                                     x,
+                                     res[:,0],
                                      system_parameters.sig,
                                      r, 
                                      system_parameters.b)
-        #len = min(len(u), len(v), len(w), len(x), len(y), len(z))
-        u, v, w = synced[:,0], synced[:, 1], synced[:, 2]
-        title =f"r={str(r)} | tol= {str(integrator.tol)}"
-        plot2d_two_param_sets(t, t2, x, u, "x vs. u", "x", "u", "time")
-        plot2d_two_param_sets(t, t2, y, v, "y vs. v", "y", "v", "time")
-        plot2d_two_param_sets(t, t2, z, w, "z vs. w", "z", "w", "time")
-        plot2d_three_params(t, np.abs(x-u), np.abs(y-v), np.abs(z-w), title,
-                           '|x-u|', '|y-v|', '|z-w|', 't')
-        plot(t, np.abs(x-u), title, 't', '|x-u|')
-        plot(t, np.abs(y-v), title, 't',  '|y-v|')
-        plot(t, np.abs(z-w), title, 't', '|z-w|')
+        print_result_difference(res, t, synced, t2, system_parameters.tol, r)
         
     
 def print_wave(norm: float, wave_properties: WaveProperties, 
@@ -375,6 +364,7 @@ def perterb_and_plot_distribution(x: np.array, t: np.array,
     """
     #perturb x(t)
     X_t = np.zeros(t.size)
+    
     # calculates the indices to match the values for whcih t > 0
     signal_raw_length = len(signal_raw)
     index = np.where(t >= 0)[0]
@@ -504,4 +494,5 @@ def main():
             # write the new wave
             export_signal(signal_sent, system_parameters, r)
 
-main()
+if __name__ == '__main__':
+    main()
